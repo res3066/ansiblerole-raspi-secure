@@ -1,0 +1,6 @@
+{{ ansible_managed | comment }}
+
+{% for user in raspi_nopasswd_sudoers %}
+{{ user }}  ALL=(ALL) NOPASSWD: ALL
+{% endfor %}
+

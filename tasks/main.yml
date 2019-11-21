@@ -1,0 +1,39 @@
+---
+
+  - name: sending over templated sudoers
+    template: src=999_sudo_nopasswd.j2 dest=/etc/sudoers.d/999_sudo_nopasswd owner=root group=root mode=0440
+
+  - set_fact:
+      ct_raspi: false
+      ct_raspbian: false
+
+  - name: checking for raspberry pi hardware via eth0 oui
+    set_fact:
+      ct_raspi: true
+    when: >
+      ansible_eth0.macaddress is search("^b8:27:eb")
+
+  - name: checking for raspbian via ansible facts
+    set_fact:
+      ct_raspbian: true
+    when: >
+      ansible_lsb.id == "Raspbian"
+
+  - name: ensuring presence and mode for ~pi/.ssh
+    file: name=/home/pi/.ssh state=directory owner=pi mode=0755
+
+  - name: sending over ~pi/.ssh/authorized_keys
+    assemble:
+      src: "{{ host_pi_ssh_keys }}"
+      dest: /home/pi/.ssh/authorized_keys
+      remote_src: no
+      owner: pi
+      group: pi
+      mode: 0644
+
+#  - name: "pi user"
+#    user: name="pi" password="*"
+#    when: ct_raspbian == true
+
+
+...
